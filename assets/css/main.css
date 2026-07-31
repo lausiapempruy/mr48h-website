@@ -1,0 +1,246 @@
+/* ==========================================================
+   MR48H — main.css
+   Reset, design tokens (CSS custom properties), typography,
+   base layout, dan aturan cross-platform parity (PC vs HP).
+
+   Visual personality: malam syahdu menjelang subuh — langit deep
+   navy dengan bintang pelan berkelip, aksen emerald & gold kayak
+   lampu masjid yang hangat, disentuh cyan tipis buat kesan
+   digital/anak muda tanpa jadi norak.
+
+   Catatan font: sengaja gak pake webfont CDN (selaras sama CSP
+   style-src/font-src 'self' — nol request ke domain luar). Karakter
+   tipografi dibentuk lewat kombinasi weight, tracking, dan scale,
+   bukan lewat nama font custom.
+   ========================================================== */
+
+:root {
+  /* ---- warna ---- */
+  --navy-deep:    #060B16;
+  --navy:         #0F172A;
+  --navy-soft:    #16213A;
+  --navy-card:    #131C30;
+
+  --emerald-deep: #064E3B;
+  --emerald:      #10B981;
+  --gold:         #F59E0B;
+  --gold-soft:    #FCD34D;
+  --cyan:         #22D3EE;
+  --purple:       #A78BFA;
+
+  --ink:          #E9EEF7;
+  --ink-dim:      #9AA7BD;
+  --ink-faint:    #5C6883;
+
+  --line:         rgba(255,255,255,0.08);
+  --line-soft:    rgba(255,255,255,0.05);
+
+  --glow-gold:    0 0 44px rgba(245,158,11,0.28);
+  --glow-emerald: 0 0 40px rgba(16,185,129,0.25);
+  --glow-cyan:    0 0 30px rgba(34,211,238,0.25);
+
+  /* ---- tipografi ---- */
+  --font-head: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, system-ui, sans-serif;
+
+  /* ---- spacing scale ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 72px;
+
+  /* ---- radius scale ---- */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-full: 999px;
+
+  /* ---- easing ---- */
+  --ease-spring: cubic-bezier(.22,1,.36,1);
+
+  /* ---- ukuran interaksi (cross-platform parity) ---- */
+  --touch-target: 44px;
+
+  /* ---- z-index scale ---- */
+  --z-bg: -2;
+  --z-glow: -1;
+  --z-nav: 40;
+  --z-float: 50;
+  --z-modal: 100;
+}
+
+/* ---------- reset ---------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+body {
+  margin: 0;
+  background: var(--navy);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img, svg, canvas, audio { display: block; max-width: 100%; }
+
+a { color: inherit; text-decoration: none; }
+
+h1, h2, h3, h4 { font-family: var(--font-head); margin: 0; }
+p { margin: 0; }
+ul, ol { margin: 0; padding: 0; }
+
+button {
+  font-family: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* ---------- accessibility ---------- */
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  background: var(--gold);
+  color: var(--navy-deep);
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  z-index: 200;
+  transition: top .2s var(--ease-spring);
+}
+.skip-link:focus { top: 12px; }
+
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.noscript-banner {
+  position: relative;
+  z-index: 60;
+  background: var(--emerald-deep);
+  color: var(--ink);
+  text-align: center;
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.9rem;
+}
+
+/* ---------- background layers ---------- */
+
+#starfield {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-bg);
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse 120% 80% at 50% -10%, #0d1a30 0%, var(--navy) 45%, var(--navy-deep) 100%);
+}
+
+.moon-glow {
+  position: fixed;
+  top: -120px;
+  right: -80px;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245,196,110,0.16) 0%, rgba(245,196,110,0.05) 45%, transparent 70%);
+  z-index: var(--z-glow);
+  pointer-events: none;
+  filter: blur(2px);
+}
+
+/* ---------- layout shell ---------- */
+
+.section {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-5) var(--space-6);
+  position: relative;
+}
+
+.section__head {
+  max-width: 640px;
+  margin: 0 auto var(--space-7);
+  text-align: center;
+}
+
+.section__head--left {
+  margin: 0 0 var(--space-6);
+  text-align: left;
+  max-width: 560px;
+}
+
+.section__kicker {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--emerald);
+  margin: 0 0 var(--space-3);
+}
+
+.section__title {
+  font-size: clamp(1.7rem, 3.4vw, 2.4rem);
+  font-weight: 800;
+  color: var(--ink);
+  margin-bottom: var(--space-3);
+  letter-spacing: -0.01em;
+}
+
+.section__desc {
+  color: var(--ink-dim);
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* ---------- cross-platform parity ----------
+   Perangkat dengan hover presisi (mouse/trackpad) dapet efek hover.
+   Perangkat touch (HP/tablet) dapet target sentuh minimal 44px dan
+   TANPA state hover yang nyangkut (:hover sticky bug di HP).
+*/
+
+@media (hover: hover) and (pointer: fine) {
+  .hover-lift:hover { transform: translateY(-4px); }
+}
+
+@media (pointer: coarse) {
+  .btn, .nav__cta, .footer__link, .ambience-toggle,
+  .float-audio, .timeline-item, .modal__close {
+    min-height: var(--touch-target);
+  }
+  button, a.btn { min-width: var(--touch-target); }
+}
+
+/* ---------- utility ---------- */
+
+.container { max-width: 1120px; margin: 0 auto; padding: 0 var(--space-5); }
