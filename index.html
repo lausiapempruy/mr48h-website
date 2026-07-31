@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<!--
+  KEAMANAN LEVEL 3 — Strict Content Security Policy
+  - default-src 'self'   : semua resource default cuma boleh dari origin sendiri
+  - script-src 'self'    : tolak semua inline script & script dari domain luar (anti-XSS)
+  - style-src 'self'     : tolak inline <style>/style="" (semua styling wajib dari file .css)
+  - img-src 'self' data: : gambar dari origin sendiri + data URI (buat favicon inline)
+  - font-src 'self'      : gak pake font CDN eksternal, murni system font
+  - media-src 'self'     : audio ambient cuma boleh dari folder assets/audio sendiri
+  - connect-src 'self'   : fetch() JSON lokal doang, gak ada request ke server luar
+  - object-src 'none'    : blokir <object>/<embed> (vektor serangan lama)
+  - base-uri 'self'      : cegah base tag hijacking
+  - form-action 'self'   : gak ada form yang ngirim ke luar (web ini emang gak ada form)
+  - frame-ancestors none : anti-clickjacking, web ini gak boleh di-iframe situs lain
+  Catatan: header keamanan tambahan (X-Content-Type-Options, X-Frame-Options,
+  Strict-Transport-Security) idealnya di-set di level hosting (vercel.json /
+  netlify.toml / _headers), karena meta tag gak bisa nge-set semua header itu.
+-->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests;">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0F172A">
+<meta name="robots" content="index, follow">
+
+<title>MR48H — Menuju Ramadhan 1448H</title>
+<meta name="description" content="MR48H — Saluran publik menuju Ramadhan 1448H/2027M, buat bantu anak muda curi start persiapan. Tazkiyatun nufus, kultum mini, amalan check, dan roda amalan ihsan.">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="MR48H — Menuju Ramadhan 1448H">
+<meta property="og:description" content="Curi start ibadah, siapkan diri lebih awal. Saluran publik menuju Ramadhan 1448H/2027M.">
+<meta property="og:locale" content="id_ID">
+<meta property="og:site_name" content="MR48H">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MR48H — Menuju Ramadhan 1448H">
+<meta name="twitter:description" content="Curi start ibadah, siapkan diri lebih awal. Saluran publik menuju Ramadhan 1448H/2027M.">
+
+<!-- Favicon inline (SVG Data URI, TANPA file terpisah) -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%230F172A'/%3E%3Cpath d='M40 14a20 20 0 1 0 0 36 16 16 0 1 1 0-36Z' fill='%23F59E0B'/%3E%3Ccircle cx='46' cy='16' r='3' fill='%2322D3EE'/%3E%3C/svg%3E">
+
+<link rel="stylesheet" href="assets/css/main.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<link rel="stylesheet" href="assets/css/animations.css">
+</head>
+<body>
+
+<a href="#konten-utama" class="skip-link">Langsung ke konten utama</a>
+
+<noscript>
+  <div class="noscript-banner">
+    MR48H butuh JavaScript aktif biar semua fitur interaktifnya jalan sempurna — countdown, kalender Hijriah, roda amalan, sampai audio ambient. Yuk aktifin dulu, ya. 🌙
+  </div>
+</noscript>
+
+<!-- Background layers -->
+<canvas id="starfield" aria-hidden="true"></canvas>
+<div class="moon-glow" aria-hidden="true"></div>
+
+<!-- NAVBAR -->
+<header class="nav">
+  <div class="nav__inner">
+    <a href="#konten-utama" class="nav__brand">
+      <span class="nav__crescent" aria-hidden="true">☾</span>
+      <span>MR48H</span>
+    </a>
+    <a class="nav__cta" id="navWaBtn" href="#" target="_blank" rel="noopener noreferrer">Join Saluran WA</a>
+  </div>
+</header>
+
+<main id="konten-utama">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="beranda">
+    <p class="hero__eyebrow">✦ Saluran Publik &nbsp;•&nbsp; Al-Isti'dad li Ramadhan</p>
+    <h1 class="hero__title">
+      MR48H<br>
+      <span class="hero__title-sub">Menuju Ramadhan 1448H</span>
+    </h1>
+    <p class="hero__tagline">"Curi Start Ibadah, Siapkan Diri Lebih Awal."</p>
+    <p class="hero__lede">
+      Enam bulan sebelum Ramadhan tiba, para salafus shalih sudah mulai membersihkan hati
+      dan menata niat. MR48H hadir buat nemenin langkah kecil itu — terbuka buat siapa aja,
+      gratis, dan bisa diikutin kapan pun lo siap.
+    </p>
+
+    <div class="countdown" id="countdown" aria-live="polite" aria-label="Hitung mundur menuju 1 Ramadhan 1448H">
+      <div class="countdown__box">
+        <span class="countdown__num" id="cd-days">00</span>
+        <span class="countdown__label">Hari</span>
+      </div>
+      <div class="countdown__sep" aria-hidden="true">:</div>
+      <div class="countdown__box">
+        <span class="countdown__num" id="cd-hours">00</span>
+        <span class="countdown__label">Jam</span>
+      </div>
+      <div class="countdown__sep" aria-hidden="true">:</div>
+      <div class="countdown__box">
+        <span class="countdown__num" id="cd-mins">00</span>
+        <span class="countdown__label">Menit</span>
+      </div>
+      <div class="countdown__sep" aria-hidden="true">:</div>
+      <div class="countdown__box countdown__box--pulse">
+        <span class="countdown__num" id="cd-secs">00</span>
+        <span class="countdown__label">Detik</span>
+      </div>
+    </div>
+    <p class="hero__target">Target: 1 Ramadhan 1448H &middot; 8 Februari 2027</p>
+
+    <div class="hero__actions">
+      <a href="#" id="heroWaBtn" target="_blank" rel="noopener noreferrer" class="btn btn--gold">
+        Join Saluran WA MR48H <span aria-hidden="true">↗</span>
+      </a>
+      <a href="#linimasa" class="btn btn--ghost">Lihat Linimasa Persiapan <span aria-hidden="true">↓</span></a>
+    </div>
+  </section>
+
+  <!-- ============ SECTION — HIJRIAH & FASE SEKARANG ============ -->
+  <section class="section" id="hijriah">
+    <div class="section__head section__head--left">
+      <p class="section__kicker">◆ Kalender</p>
+      <h2 class="section__title">Hari Ini &amp; Fase Persiapan Lo</h2>
+      <p class="section__desc">Pantau posisi lo di kalender Hijriah, dan tau lo lagi ada di fase persiapan yang mana &mdash; biar Ramadhan gak dateng pas hati masih belum siap.</p>
+    </div>
+
+    <div class="hijri-card">
+      <div class="hijri-card__block">
+        <span class="hijri-card__label">Masehi</span>
+        <span class="hijri-card__value" id="masehiDate">—</span>
+      </div>
+      <div class="hijri-card__divider" aria-hidden="true">☾</div>
+      <div class="hijri-card__block">
+        <span class="hijri-card__label">Hijriah <em>(versi NU)</em></span>
+        <span class="hijri-card__value" id="hijriDate">—</span>
+      </div>
+    </div>
+    <p class="hijri-card__note">*Perhitungan otomatis mengikuti pola kalender NU, bisa selisih 1 hari dari hasil rukyat/hisab resmi setempat.</p>
+
+    <div class="phase-status" id="phaseStatus">
+      <span class="phase-status__icon" aria-hidden="true">🌙</span>
+      <div class="phase-status__text">
+        <span class="phase-status__label">Fase persiapan sekarang</span>
+        <span class="phase-status__value" id="phaseStatusValue">Memuat fase persiapan…</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION — TIMELINE MILESTONE INTERAKTIF ============ -->
+  <section class="section" id="linimasa">
+    <div class="section__head">
+      <p class="section__kicker">◆ Linimasa</p>
+      <h2 class="section__title">Al-Isti'dad li Ramadhan</h2>
+      <p class="section__desc">Enam fase persiapan dari H-180 sampai H-1, masing-masing dikawal satu pilar materi MR48H. Klik salah satu buat lompat ke pilarnya.</p>
+    </div>
+
+    <div class="timeline" id="timeline" role="list" aria-label="Linimasa milestone persiapan Ramadhan">
+      <!-- diisi dinamis oleh js/countdown.js dari assets/data/timeline-data.json -->
+      <p class="timeline__loading" id="timelineLoading">Menyusun linimasa…</p>
+    </div>
+  </section>
+
+  <!-- ============ SECTION — 4 PILAR ============ -->
+  <section class="section" id="pilar">
+    <div class="section__head">
+      <p class="section__kicker">◆ Konten</p>
+      <h2 class="section__title">4 Pilar MR48H</h2>
+      <p class="section__desc">Empat jalan kecil buat menata jiwa jelang Ramadhan &mdash; tanpa ribet, tanpa perlu keliatan siapa lo. Sebagaimana ulama salaf dikenal menyiapkan diri jauh-jauh hari, MR48H coba menghadirkan semangat itu dengan cara anak muda hari ini.</p>
+    </div>
+
+    <div class="pillars">
+      <article class="pillar-card pillar-card--featured" id="pilar-kultummini" tabindex="-1">
+        <span class="pillar-card__tag">#KultumMini</span>
+        <h3 class="pillar-card__title">Kultum, Tapi Estafet &amp; Ringkas</h3>
+        <p class="pillar-card__desc">Ceramah singkat 3&ndash;5 menit yang gantian setiap hari, buat nambah pundi ilmu di sela kesibukan &mdash; tanpa bikin ngantuk, tanpa menggurui.</p>
+      </article>
+
+      <article class="pillar-card" id="pilar-ramadhantips" tabindex="-1">
+        <span class="pillar-card__tag">#RamadhanTips</span>
+        <h3 class="pillar-card__title">Tips Praktis Anak Muda</h3>
+        <p class="pillar-card__desc">Jaga stamina puasa, atur waktu sahur, sampe strategi biar dompet gak boncos pas lebaran.</p>
+      </article>
+
+      <article class="pillar-card" id="pilar-amalancheck" tabindex="-1">
+        <span class="pillar-card__tag">#AmalanCheck</span>
+        <h3 class="pillar-card__title">Checklist Amalan Harian</h3>
+        <p class="pillar-card__desc">Dari sholat wajib sampe amalan sunnah &mdash; semua bisa lo pantau sendiri, cuma buat diri lo, gak ada yang nilai.</p>
+      </article>
+
+      <article class="pillar-card" id="pilar-pollingjumatan" tabindex="-1">
+        <span class="pillar-card__tag">#PollingJumatan</span>
+        <h3 class="pillar-card__title">Refleksi &amp; Voting Tiap Jumat</h3>
+        <p class="pillar-card__desc">Ajang muhasabah ringan tiap pekan &mdash; suara lo nentuin arah komunitas, tanpa perlu buka identitas.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ SECTION — RODA AMALAN IHSAN ============ -->
+  <section class="section section--game" id="roda-amalan">
+    <div class="section__head">
+      <p class="section__kicker">◆ Mini-Game Harian</p>
+      <h2 class="section__title">Roda Amalan Ihsan</h2>
+      <p class="section__desc">Putar rodanya, dapetin 1 amalan ihsan buat hari ini. Kecil aja, tapi konsisten &mdash; itu inti dari curi start.</p>
+    </div>
+
+    <div class="streak-badge" id="streakBadge" aria-live="polite">
+      <span class="streak-badge__icon" aria-hidden="true">🔥</span>
+      <span class="streak-badge__num" id="streakCount">0</span>
+      <span class="streak-badge__label">Hari Streak Amalan</span>
+    </div>
+
+    <div class="wheel-area">
+      <div class="wheel-wrap">
+        <div class="wheel-pointer" aria-hidden="true">▼</div>
+        <div class="wheel" id="wheel" role="img" aria-label="Roda amalan ihsan"><!-- segmen digambar via js/wheel-game.js --></div>
+      </div>
+
+      <div class="wheel-panel">
+        <button class="btn btn--gold btn--spin" id="spinBtn" type="button">
+          <span class="btn--spin__label" id="spinBtnLabel">Putar Roda</span>
+          <svg class="cooldown-ring" id="cooldownRing" viewBox="0 0 40 40" aria-hidden="true" hidden>
+            <circle class="cooldown-ring__bg" cx="20" cy="20" r="17"></circle>
+            <circle class="cooldown-ring__progress" id="cooldownProgress" cx="20" cy="20" r="17"></circle>
+          </svg>
+        </button>
+        <p class="wheel-panel__hint" id="cooldownHint" aria-live="polite"></p>
+
+        <div class="wheel-result" id="wheelResult" hidden>
+          <p class="wheel-result__eyebrow">Amalan Ihsan hari ini buat lo:</p>
+          <p class="wheel-result__text" id="wheelResultText">—</p>
+          <p class="wheel-result__dalil" id="wheelResultDalil"></p>
+          <div class="wheel-result__actions">
+            <button class="btn btn--emerald" id="completeBtn" type="button">Tandai Selesai ✓</button>
+            <a href="#" id="shareWaBtn" target="_blank" rel="noopener noreferrer" class="btn btn--outline-cyan">
+              Share ke WhatsApp <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </div>
+
+        <ol class="wheel-legend" id="wheelLegend" aria-label="Daftar amalan di roda"><!-- diisi js/wheel-game.js --></ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION — AMBIENT AUDIO ============ -->
+  <section class="section section--ambience" id="suasana">
+    <div class="section__head section__head--left">
+      <p class="section__kicker">◆ Suasana</p>
+      <h2 class="section__title">Vibes Malam</h2>
+      <p class="section__desc">Nyalain suara latar buat nemenin lo baca doa atau scroll amalan. Redup, tenang, gak ganggu &mdash; dan kondisinya keinget terus tiap lo balik ke sini.</p>
+    </div>
+
+    <div class="ambience-card">
+      <div class="ambience-card__visual" aria-hidden="true">
+        <span class="ambience-star ambience-star--1">✦</span>
+        <span class="ambience-star ambience-star--2">✧</span>
+        <span class="ambience-star ambience-star--3">✦</span>
+        <span class="ambience-moon">☾</span>
+      </div>
+      <div class="ambience-card__control">
+        <p class="ambience-card__hint">🎧 Disarankan pake headset atau earphone</p>
+        <button class="ambience-toggle" id="audioToggle" type="button" aria-pressed="false">
+          <span class="ambience-toggle__icon" aria-hidden="true">▶</span>
+          <span class="ambience-toggle__text">Putar Suasana Malam</span>
+        </button>
+        <audio id="ambientAudio" loop preload="none">
+          <source src="assets/audio/ambient-night.mp3" type="audio/mpeg">
+        </audio>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Floating audio toggle (akses cepat dari section manapun) -->
+<button class="float-audio" id="floatAudioToggle" type="button" aria-label="Nyalain/matiin suasana audio" aria-pressed="false">
+  <span id="floatAudioIcon" aria-hidden="true">☾</span>
+</button>
+
+<!-- Modal — muncul pas amalan ditandai selesai -->
+<div class="modal" id="completionModal" role="dialog" aria-modal="true" aria-labelledby="completionModalTitle" hidden>
+  <div class="modal__backdrop" data-modal-close></div>
+  <div class="modal__panel" role="document">
+    <button class="modal__close" data-modal-close type="button" aria-label="Tutup modal">×</button>
+    <p class="modal__eyebrow">✦ Alhamdulillah</p>
+    <h3 class="modal__title" id="completionModalTitle">Amalan Hari Ini Selesai</h3>
+    <p class="modal__desc" id="completionModalDesc">Semoga jadi pemberat timbangan, dan jadi langkah kecil menuju Ramadhan yang lebih siap.</p>
+    <div class="modal__streak">
+      <span class="modal__streak-num" id="modalStreakNum">0</span>
+      <span class="modal__streak-label">Hari Berturut-turut</span>
+    </div>
+    <button class="btn btn--gold modal__cta" id="modalCloseBtn" type="button">Alhamdulillah, Lanjut</button>
+  </div>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__brand">
+      <span class="nav__crescent" aria-hidden="true">☾</span> MR48H
+    </div>
+    <p class="footer__note">Dibuat dengan penuh rindu untuk Ramadhan 1448H.<br>Terbuka untuk siapa aja, gratis dan konsisten.</p>
+
+    <div class="footer__links">
+      <a href="#" id="footerWaBtn" target="_blank" rel="noopener noreferrer" class="footer__link">Saluran WhatsApp MR48H</a>
+      <a href="#" id="footerWebsiteBtn" class="footer__link">Website MR48H</a>
+    </div>
+
+    <p class="footer__credit">MR48H &middot; Menuju Ramadhan 1448H / 2027M</p>
+  </div>
+</footer>
+
+<script src="assets/js/config.js" defer></script>
+<script src="assets/js/security.js" defer></script>
+<script src="assets/js/storage.js" defer></script>
+<script src="assets/js/hijri-converter.js" defer></script>
+<script src="assets/js/countdown.js" defer></script>
+<script src="assets/js/wheel-game.js" defer></script>
+<script src="assets/js/audio-player.js" defer></script>
+<script src="assets/js/app.js" defer></script>
+</body>
+</html>
