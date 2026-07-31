@@ -1,0 +1,167 @@
+/* ==========================================================
+   MR48H — animations.css
+   Semua keyframes, transisi, dan hover-glow. Setiap efek di sini
+   punya alasan visual (lihat komentar per blok) — bukan ditaruh
+   cuma karena "kelihatan keren".
+   ========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- nav & link transitions (feedback state) ---------- */
+
+.nav__cta,
+.footer__link,
+.btn,
+.ambience-toggle,
+.float-audio,
+.modal__close {
+  transition: transform .25s var(--ease-spring), box-shadow .25s var(--ease-spring),
+              background .25s ease, border-color .25s ease, color .25s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav__cta:hover { background: rgba(245,158,11,0.1); border-color: var(--gold); transform: translateY(-1px); }
+  .footer__link:hover { color: var(--gold-soft); border-color: rgba(245,158,11,0.4); }
+  .ambience-toggle:hover { border-color: var(--cyan); }
+  .float-audio:hover { transform: translateY(-3px); box-shadow: var(--glow-gold); }
+
+  .btn--gold:hover { transform: translateY(-2px); box-shadow: 0 0 56px rgba(245,158,11,0.4); }
+  .btn--ghost:hover { border-color: var(--emerald); color: var(--ink); background: rgba(16,185,129,0.06); }
+  .btn--emerald:hover { transform: translateY(-2px); box-shadow: 0 0 50px rgba(16,185,129,0.35); }
+  .btn--outline-cyan:hover { box-shadow: var(--glow-cyan); transform: translateY(-2px); }
+}
+
+/* ---------- pillar card hover (guide eye ke card yang di-hover) ---------- */
+
+.pillar-card {
+  transition: transform .35s var(--ease-spring), border-color .35s ease, box-shadow .35s ease;
+}
+.pillar-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 85% 0%, rgba(16,185,129,0.12), transparent 55%);
+  opacity: 0;
+  transition: opacity .35s ease;
+  pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .pillar-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(16,185,129,0.35);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+  }
+  .pillar-card:hover::before { opacity: 1; }
+}
+/* di HP, feedback lewat :active biar gak nyangkut hover state */
+@media (pointer: coarse) {
+  .pillar-card:active { transform: scale(0.98); border-color: rgba(16,185,129,0.3); }
+}
+
+/* ---------- timeline item interaktif ---------- */
+
+.timeline-item {
+  transition: transform .3s var(--ease-spring), border-color .3s ease, box-shadow .3s ease;
+  cursor: pointer;
+}
+@media (hover: hover) and (pointer: fine) {
+  .timeline-item:hover { transform: translateY(-3px); border-color: rgba(245,158,11,0.4); }
+}
+@media (pointer: coarse) {
+  .timeline-item:active { transform: scale(0.97); }
+}
+
+/* ---------- roda amalan: transisi spin ----------
+   Easing custom biar rasanya "muter kenceng lalu pelan" natural,
+   bukan linear yang kaku. Durasi 4.2s dikoordinasi sama JS.
+*/
+
+.wheel {
+  transition: transform 4.2s cubic-bezier(.12,.85,.14,1);
+  will-change: transform;
+}
+
+/* ---------- cooldown ring (rate limiter visual) ----------
+   stroke-dashoffset dikontrol via custom property dari JS
+   (--cooldown-progress: 0 s/d 1) buat nunjukkin sisa waktu cooldown.
+*/
+
+.cooldown-ring__progress {
+  stroke-dasharray: 106.8; /* 2 * PI * r(17) */
+  stroke-dashoffset: calc(106.8 * (1 - var(--cooldown-progress, 0)));
+  transition: stroke-dashoffset .2s linear;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+/* ---------- streak badge — nudge halus tiap streak nambah ---------- */
+
+@keyframes streakPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+.streak-badge--pop .streak-badge__num { animation: streakPop .45s var(--ease-spring); }
+
+/* ---------- modal enter/exit ---------- */
+
+@keyframes modalBackdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modalPanelIn {
+  from { opacity: 0; transform: translateY(18px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal:not([hidden]) .modal__backdrop { animation: modalBackdropIn .25s ease forwards; }
+.modal:not([hidden]) .modal__panel { animation: modalPanelIn .35s var(--ease-spring) forwards; }
+
+/* ---------- ambience: bulan mengambang + bintang kelap-kelip ----------
+   Kedua animasi ini nunjukkin section ini "hidup" tanpa narik fokus
+   dari tombol toggle — makanya gerakannya lambat & opacity rendah.
+*/
+
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.ambience-moon { animation: floaty 6s ease-in-out infinite; }
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+.ambience-star { animation: twinkle 2.4s ease-in-out infinite; }
+.ambience-star--1 { animation-delay: 0s; }
+.ambience-star--2 { animation-delay: .8s; }
+.ambience-star--3 { animation-delay: 1.5s; }
+
+/* ---------- float audio: pulse ring pas lagi nyala ----------
+   Nunjukkin status "sedang aktif" tanpa perlu teks tambahan.
+*/
+
+@keyframes pulseRing {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(245,158,11,0); }
+}
+.float-audio[aria-pressed="true"] { animation: pulseRing 2.2s ease-in-out infinite; }
+
+/* ---------- scroll reveal ----------
+   Dipasang JS via class .reveal / .is-visible untuk membangun
+   hierarki: section muncul halus pas masuk viewport, gak sekaligus.
+*/
+
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity .7s var(--ease-spring), transform .7s var(--ease-spring);
+}
+.reveal.is-visible { opacity: 1; transform: translateY(0); }
