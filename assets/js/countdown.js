@@ -11,7 +11,17 @@
   const config = NS.config;
   const security = NS.security;
 
-  const TARGET_TIME = new Date(config.RAMADAN_TARGET_ISO).getTime();
+  function getTargetTime() {
+    // Lazy + guarded: dipanggil tiap butuh, BUKAN dihitung sekali di top-level module.
+    // Ini sengaja — kalau langsung `const TARGET_TIME = new Date(...)` di top-level dan
+    // config ternyata belum siap, statement itu throw SAAT FILE INI DI-PARSE, yang bikin
+    // NS.countdown gak pernah selesai dibentuk sama sekali. Efek dominonya: app.js manggil
+    // NS.countdown.startCountdownTimer() lalu throw juga, dan SEMUA baris sesudahnya di
+    // app.js (loadTimeline, wheel.init, dst) ikut kebawa berhenti. Jadi keliatan "gak ada
+    // 1 fitur pun yang jalan" padahal akar masalahnya cuma 1 baris ini.
+    if (!config || !config.RAMADAN_TARGET_ISO) return Date.now();
+    return new Date(config.RAMADAN_TARGET_ISO).getTime();
+  }
 
   const PILLAR_LABELS = {
     kultummini: "KultumMini",
@@ -35,7 +45,7 @@
     const elSecs = document.getElementById("cd-secs");
     if (!elDays || !elHours || !elMins || !elSecs) return;
 
-    let diff = TARGET_TIME - Date.now();
+    let diff = getTargetTime() - Date.now();
     if (diff < 0) diff = 0;
 
     const days = Math.floor(diff / 86400000);
@@ -55,7 +65,7 @@
   }
 
   function daysRemainingNow() {
-    const diff = Math.max(0, TARGET_TIME - Date.now());
+    const diff = Math.max(0, getTargetTime() - Date.now());
     return diff / 86400000;
   }
 
