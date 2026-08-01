@@ -1,7 +1,7 @@
 /* ==========================================================
    MR48H — components.css
    Styling struktural untuk tiap komponen UI: nav, button, card,
-   timeline, pillar, wheel game, streak badge, modal, ambience,
+   timeline, pillar, wheel game, streak badge, modal, Ramadhan Tracker,
    cooldown overlay, dan footer.
    ========================================================== */
 
@@ -582,97 +582,154 @@
 .wheel-legend .legend-num { color: var(--gold-soft); font-weight: 700; flex-shrink: 0; }
 
 /* ==========================================================
-   AMBIENCE
+   RAMADHAN TRACKER
    ========================================================== */
 
-.ambience-card {
-  display: flex;
-  align-items: center;
-  gap: 40px;
-  background: linear-gradient(150deg, rgba(6,78,59,0.25), rgba(15,23,42,0.5));
+.tracker-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 18px;
+}
+
+.tracker-card {
+  grid-column: span 2;
+  background: rgba(255,255,255,0.025);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
-  padding: 36px;
+  padding: 26px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tracker-card__title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+}
+
+.tracker-card--fasting { align-items: flex-start; }
+
+.tracker-card__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tracker-card__stat-num {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 2.4rem;
+  color: var(--gold-soft);
+  line-height: 1;
+}
+
+.tracker-card__stat-label {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ---- tilawah ---- */
+
+.tilawah-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tilawah-progress__bar {
+  flex: 1;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+
+.tilawah-progress__fill {
+  height: 100%;
+  width: var(--fill-percent, 0%);
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--emerald), var(--cyan));
+}
+
+.tilawah-progress__percent {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--ink);
+  min-width: 40px;
+  text-align: right;
+}
+
+.tilawah-card__hint {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  margin: 0;
+}
+
+.tilawah-input {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--ink-dim);
+}
+
+.tilawah-input input {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+}
+.tilawah-input input:focus-visible { border-color: var(--cyan); }
+
+/* ---- mutaba'ah checklist ---- */
+
+.checklist {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checklist__item label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: var(--ink-dim);
+  cursor: pointer;
+}
+
+.checklist__item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  accent-color: var(--emerald);
+}
+
+.checklist__item:has(input:checked) label { color: var(--ink); }
+
+/* ---- share ringkasan ---- */
+
+.tracker-share {
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
   flex-wrap: wrap;
 }
 
-.ambience-card__visual {
-  position: relative;
-  width: 140px;
-  height: 140px;
-  flex-shrink: 0;
-}
-
-.ambience-moon {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3.6rem;
-  color: var(--gold-soft);
-  filter: drop-shadow(0 0 22px rgba(245,158,11,0.4));
-}
-
-.ambience-star {
-  position: absolute;
-  color: var(--cyan);
-  font-size: 0.9rem;
-}
-.ambience-star--1 { top: 6px; left: 10px; }
-.ambience-star--2 { top: 30px; right: 6px; color: var(--gold-soft); }
-.ambience-star--3 { bottom: 10px; left: 30%; }
-
-.ambience-card__control { flex: 1; min-width: 220px; }
-
-.ambience-card__hint {
-  margin: 0 0 16px;
-  font-size: 0.85rem;
-  color: var(--ink-faint);
-}
-
-.ambience-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--line);
-  color: var(--ink);
-  padding: 13px 22px;
-  border-radius: var(--radius-full);
-  font-weight: 600;
-  font-size: 0.92rem;
-}
-.ambience-toggle[aria-pressed="true"] {
-  background: rgba(34,211,238,0.12);
-  border-color: var(--cyan);
-  box-shadow: var(--glow-cyan);
-}
-
-.ambience-toggle__icon { font-size: 0.9rem; }
-
-/* floating toggle */
-
-.float-audio {
-  position: fixed;
-  bottom: 22px;
-  right: 22px;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: var(--navy-card);
-  border: 1px solid rgba(245,158,11,0.35);
-  color: var(--gold-soft);
-  font-size: 1.3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: var(--z-float);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-}
-.float-audio[aria-pressed="true"] {
-  color: var(--navy-deep);
-  background: var(--gold-soft);
+.tracker-share__hint {
+  color: var(--ink-dim);
+  font-size: 0.88rem;
+  margin: 0;
 }
 
 /* ==========================================================
@@ -835,8 +892,7 @@
   .hero { padding: 64px 20px 50px; }
   .pillar-card, .pillar-card--featured { grid-column: span 6; }
   .wheel-area { gap: 32px; }
-  .ambience-card { padding: 26px; justify-content: center; text-align: center; }
-  .ambience-card__control { text-align: center; }
+  .tracker-grid { grid-template-columns: 1fr; }
   .footer { padding: 44px 20px 100px; }
 }
 
