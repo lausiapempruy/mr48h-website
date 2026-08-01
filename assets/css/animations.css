@@ -19,8 +19,6 @@
 .nav__cta,
 .footer__link,
 .btn,
-.ambience-toggle,
-.float-audio,
 .modal__close {
   transition: transform .25s var(--ease-spring), box-shadow .25s var(--ease-spring),
               background .25s ease, border-color .25s ease, color .25s ease;
@@ -29,8 +27,6 @@
 @media (hover: hover) and (pointer: fine) {
   .nav__cta:hover { background: rgba(245,158,11,0.1); border-color: var(--gold); transform: translateY(-1px); }
   .footer__link:hover { color: var(--gold-soft); border-color: rgba(245,158,11,0.4); }
-  .ambience-toggle:hover { border-color: var(--cyan); }
-  .float-audio:hover { transform: translateY(-3px); box-shadow: var(--glow-gold); }
 
   .btn--gold:hover { transform: translateY(-2px); box-shadow: 0 0 56px rgba(245,158,11,0.4); }
   .btn--ghost:hover { border-color: var(--emerald); color: var(--ink); background: rgba(16,185,129,0.06); }
@@ -124,35 +120,20 @@
 .modal:not([hidden]) .modal__backdrop { animation: modalBackdropIn .25s ease forwards; }
 .modal:not([hidden]) .modal__panel { animation: modalPanelIn .35s var(--ease-spring) forwards; }
 
-/* ---------- ambience: bulan mengambang + bintang kelap-kelip ----------
-   Kedua animasi ini nunjukkin section ini "hidup" tanpa narik fokus
-   dari tombol toggle — makanya gerakannya lambat & opacity rendah.
-*/
+/* ---------- tracker: progress bar tilawah geser halus tiap disimpan ---------- */
 
-@keyframes floaty {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+.tilawah-progress__fill {
+  transition: width .5s var(--ease-spring);
 }
-.ambience-moon { animation: floaty 6s ease-in-out infinite; }
 
-@keyframes twinkle {
-  0%, 100% { opacity: 0.25; transform: scale(0.85); }
-  50% { opacity: 1; transform: scale(1.1); }
+/* ---------- tracker: checklist item nudge halus pas dicentang ---------- */
+
+@keyframes checklistPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
 }
-.ambience-star { animation: twinkle 2.4s ease-in-out infinite; }
-.ambience-star--1 { animation-delay: 0s; }
-.ambience-star--2 { animation-delay: .8s; }
-.ambience-star--3 { animation-delay: 1.5s; }
-
-/* ---------- float audio: pulse ring pas lagi nyala ----------
-   Nunjukkin status "sedang aktif" tanpa perlu teks tambahan.
-*/
-
-@keyframes pulseRing {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.4); }
-  50% { box-shadow: 0 0 0 10px rgba(245,158,11,0); }
-}
-.float-audio[aria-pressed="true"] { animation: pulseRing 2.2s ease-in-out infinite; }
+.checklist__item input[type="checkbox"]:checked { animation: checklistPop .3s var(--ease-spring); }
 
 /* ---------- scroll reveal ----------
    Dipasang JS via class .reveal / .is-visible untuk membangun
