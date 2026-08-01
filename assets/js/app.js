@@ -137,7 +137,7 @@
 
   function initReveal() {
     const targets = document.querySelectorAll(
-      ".section__head, .hijri-card, .phase-status, .pillar-card, .wheel-area, .ambience-card"
+      ".section__head, .hijri-card, .phase-status, .pillar-card, .wheel-area, .tracker-grid"
     );
     targets.forEach(function (el) { el.classList.add("reveal"); });
 
@@ -177,22 +177,38 @@
   }
 
   /* ---------------------------------------------------------
+     safeRun — jalanin 1 langkah init secara terisolasi.
+     Kalau 1 modul error, modul LAIN tetep jalan normal (gak nge-cascade).
+     Ini akar perbaikan dari bug "gak ada 1 pun fitur yang jalan" —
+     sebelumnya 1 error di tengah bisa nge-stop semua baris sesudahnya
+     dalam satu function init() yang sama.
+     --------------------------------------------------------- */
+
+  function safeRun(label, fn) {
+    try {
+      fn();
+    } catch (err) {
+      console.warn("[MR48H app] modul '" + label + "' gagal jalan, tapi modul lain tetep lanjut:", err);
+    }
+  }
+
+  /* ---------------------------------------------------------
      Init
      --------------------------------------------------------- */
 
   function init() {
-    watchCspViolations();
-    wireStaticLinks();
-    wireModal();
-    wireTimelineNavigation();
-    initStarfield();
-    initReveal();
+    safeRun("csp-watcher", watchCspViolations);
+    safeRun("static-links", wireStaticLinks);
+    safeRun("modal", wireModal);
+    safeRun("timeline-nav", wireTimelineNavigation);
+    safeRun("starfield", initStarfield);
+    safeRun("reveal", initReveal);
 
-    NS.hijri.renderToday();
-    NS.countdown.startCountdownTimer();
-    NS.countdown.loadTimeline();
-    NS.wheel.init();
-    NS.audio.init();
+    safeRun("hijri", function () { NS.hijri.renderToday(); });
+    safeRun("countdown-timer", function () { NS.countdown.startCountdownTimer(); });
+    safeRun("countdown-timeline", function () { NS.countdown.loadTimeline(); });
+    safeRun("wheel", function () { NS.wheel.init(); });
+    safeRun("tracker", function () { NS.tracker.init(); });
   }
 
   document.addEventListener("DOMContentLoaded", init);
