@@ -130,9 +130,20 @@
     };
   }
 
+  /**
+   * Sanitasi input angka dari user (misal input halaman tilawah) —
+   * clamp ke rentang min-max, fallback ke nilai default kalau gak valid.
+   */
+  function sanitizeInt(value, minVal, maxVal, fallback) {
+    const n = typeof value === "number" ? value : parseInt(value, 10);
+    if (!Number.isFinite(n)) return fallback;
+    return Math.min(maxVal, Math.max(minVal, Math.round(n)));
+  }
+
   NS.security = {
     ALLOWED_PILLARS: ALLOWED_PILLARS,
     sanitizeString: sanitizeString,
+    sanitizeInt: sanitizeInt,
     isPlainObject: isPlainObject,
     validateAmalanItem: validateAmalanItem,
     validateTimelineItem: validateTimelineItem,
