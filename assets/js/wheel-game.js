@@ -21,7 +21,18 @@
   let lastResultAmalan = null;
   let cooldownIntervalId = null;
 
-  const rateLimiter = security.createRateLimiter(config.WHEEL_COOLDOWN_MS);
+  let rateLimiter = null;
+  function getRateLimiter() {
+    // Lazy init — jangan panggil security.createRateLimiter(config...) di top-level
+    // module. Lihat penjelasan lengkap di countdown.js soal kenapa ini penting:
+    // top-level throw di satu modul bisa nge-cascade dan bikin modul lain
+    // (yang urutan load-nya sesudahnya) ikut gak jalan sama sekali.
+    if (!rateLimiter) {
+      const cooldown = (config && config.WHEEL_COOLDOWN_MS) || 6500;
+      rateLimiter = security.createRateLimiter(cooldown);
+    }
+    return rateLimiter;
+  }
 
   /* ---------------------------------------------------------
      Bangun tampilan roda + legend (CSSOM style assignment —
@@ -107,7 +118,7 @@
   function watchCooldown() {
     if (cooldownIntervalId) clearInterval(cooldownIntervalId);
     cooldownIntervalId = setInterval(function () {
-      const remaining = rateLimiter.remainingMs();
+      const remaining = getRateLimiter().remainingMs();
       setSpinButtonCooldownVisual(remaining, config.WHEEL_COOLDOWN_MS);
       if (remaining <= 0) {
         clearInterval(cooldownIntervalId);
@@ -123,7 +134,7 @@
   function spinWheel() {
     if (isSpinning || !amalanList.length) return;
 
-    if (!rateLimiter.tryConsume()) {
+    if (!getRateLimiter().tryConsume()) {
       // Diblokir rate limiter — cegah spam klik / kemungkinan auto-click script.
       watchCooldown();
       return;
@@ -173,7 +184,7 @@
       spinLabel.textContent = "Putar Lagi";
       isSpinning = false;
       watchCooldown();
-      setSpinButtonCooldownVisual(rateLimiter.remainingMs(), config.WHEEL_COOLDOWN_MS);
+      setSpinButtonCooldownVisual(getRateLimiter().remainingMs(), config.WHEEL_COOLDOWN_MS);
     }, config.SPIN_DURATION_MS);
   }
 
