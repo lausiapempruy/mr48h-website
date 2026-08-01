@@ -11,7 +11,6 @@
   - style-src 'self'     : tolak inline <style>/style="" (semua styling wajib dari file .css)
   - img-src 'self' data: : gambar dari origin sendiri + data URI (buat favicon inline)
   - font-src 'self'      : gak pake font CDN eksternal, murni system font
-  - media-src 'self'     : audio ambient cuma boleh dari folder assets/audio sendiri
   - connect-src 'self'   : fetch() JSON lokal doang, gak ada request ke server luar
   - object-src 'none'    : blokir <object>/<embed> (vektor serangan lama)
   - base-uri 'self'      : cegah base tag hijacking
@@ -21,7 +20,7 @@
   Strict-Transport-Security) idealnya di-set di level hosting (vercel.json /
   netlify.toml / _headers), karena meta tag gak bisa nge-set semua header itu.
 -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests;">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0F172A">
@@ -53,7 +52,7 @@
 
 <noscript>
   <div class="noscript-banner">
-    MR48H butuh JavaScript aktif biar semua fitur interaktifnya jalan sempurna — countdown, kalender Hijriah, roda amalan, sampai audio ambient. Yuk aktifin dulu, ya. 🌙
+    MR48H butuh JavaScript aktif biar semua fitur interaktifnya jalan sempurna — countdown, kalender Hijriah, roda amalan, sampai Ramadhan Tracker. Yuk aktifin dulu, ya. 🌙
   </div>
 </noscript>
 
@@ -245,40 +244,84 @@
     </div>
   </section>
 
-  <!-- ============ SECTION — AMBIENT AUDIO ============ -->
-  <section class="section section--ambience" id="suasana">
+  <!-- ============ SECTION — RAMADHAN TRACKER ============ -->
+  <section class="section section--tracker" id="tracker">
     <div class="section__head section__head--left">
-      <p class="section__kicker">◆ Suasana</p>
-      <h2 class="section__title">Vibes Malam</h2>
-      <p class="section__desc">Nyalain suara latar buat nemenin lo baca doa atau scroll amalan. Redup, tenang, gak ganggu &mdash; dan kondisinya keinget terus tiap lo balik ke sini.</p>
+      <p class="section__kicker">◆ Dashboard Pribadi</p>
+      <h2 class="section__title">Ramadhan Tracker</h2>
+      <p class="section__desc">Pantau progres ibadah harian lo di sini &mdash; streak puasa, tilawah menuju khatam, sampe checklist mutaba'ah yaumiyah. Semua tersimpan aman di browser lo sendiri.</p>
     </div>
 
-    <div class="ambience-card">
-      <div class="ambience-card__visual" aria-hidden="true">
-        <span class="ambience-star ambience-star--1">✦</span>
-        <span class="ambience-star ambience-star--2">✧</span>
-        <span class="ambience-star ambience-star--3">✦</span>
-        <span class="ambience-moon">☾</span>
+    <div class="tracker-grid">
+      <div class="tracker-card tracker-card--fasting">
+        <h3 class="tracker-card__title">Streak Puasa</h3>
+        <div class="tracker-card__stat">
+          <span class="tracker-card__stat-num" id="fastingStreakCount">0</span>
+          <span class="tracker-card__stat-label">Hari Berturut-turut</span>
+        </div>
+        <button class="btn btn--emerald" id="fastingToggleBtn" type="button">Tandai Puasa Hari Ini ✓</button>
       </div>
-      <div class="ambience-card__control">
-        <p class="ambience-card__hint">🎧 Disarankan pake headset atau earphone</p>
-        <button class="ambience-toggle" id="audioToggle" type="button" aria-pressed="false">
-          <span class="ambience-toggle__icon" aria-hidden="true">▶</span>
-          <span class="ambience-toggle__text">Putar Suasana Malam</span>
-        </button>
-        <audio id="ambientAudio" loop preload="none">
-          <source src="assets/audio/ambient-night.mp3" type="audio/mpeg">
-        </audio>
+
+      <div class="tracker-card tracker-card--tilawah">
+        <h3 class="tracker-card__title">Tilawah Al-Qur'an</h3>
+        <div class="tilawah-progress">
+          <div class="tilawah-progress__bar"><div class="tilawah-progress__fill" id="tilawahFill"></div></div>
+          <span class="tilawah-progress__percent" id="tilawahPercent">0%</span>
+        </div>
+        <p class="tilawah-card__hint" id="tilawahJuzHint">0 dari 604 halaman &mdash; setara ± Juz 0 dari 30</p>
+        <label class="tilawah-input">
+          <span>Total halaman yang udah dibaca (dari 604 halaman)</span>
+          <input type="number" id="tilawahInput" min="0" max="604" step="1" inputmode="numeric" placeholder="0">
+        </label>
+        <button class="btn btn--outline-cyan" id="tilawahSaveBtn" type="button">Simpan Progress</button>
       </div>
+
+      <div class="tracker-card tracker-card--mutabaah">
+        <h3 class="tracker-card__title">Mutaba'ah Yaumiyah</h3>
+        <ul class="checklist" id="mutabaahChecklist">
+          <li class="checklist__item">
+            <label>
+              <input type="checkbox" data-mutabaah-key="fardhuBerjamaah">
+              <span>Shalat Fardhu Berjamaah</span>
+            </label>
+          </li>
+          <li class="checklist__item">
+            <label>
+              <input type="checkbox" data-mutabaah-key="tarawihWitir">
+              <span>Tarawih / Witir</span>
+            </label>
+          </li>
+          <li class="checklist__item">
+            <label>
+              <input type="checkbox" data-mutabaah-key="sedekahSubuh">
+              <span>Sedekah Subuh</span>
+            </label>
+          </li>
+          <li class="checklist__item">
+            <label>
+              <input type="checkbox" data-mutabaah-key="dhuha">
+              <span>Shalat Dhuha</span>
+            </label>
+          </li>
+          <li class="checklist__item">
+            <label>
+              <input type="checkbox" data-mutabaah-key="tadarus">
+              <span>Tadarus</span>
+            </label>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tracker-share">
+      <p class="tracker-share__hint">Udah semangat hari ini? Share ringkasannya biar bisa saling ngingetin.</p>
+      <a href="#" id="trackerShareBtn" target="_blank" rel="noopener noreferrer" class="btn btn--gold">
+        Share Ringkasan Progress <span aria-hidden="true">↗</span>
+      </a>
     </div>
   </section>
 
 </main>
-
-<!-- Floating audio toggle (akses cepat dari section manapun) -->
-<button class="float-audio" id="floatAudioToggle" type="button" aria-label="Nyalain/matiin suasana audio" aria-pressed="false">
-  <span id="floatAudioIcon" aria-hidden="true">☾</span>
-</button>
 
 <!-- Modal — muncul pas amalan ditandai selesai -->
 <div class="modal" id="completionModal" role="dialog" aria-modal="true" aria-labelledby="completionModalTitle" hidden>
@@ -319,7 +362,7 @@
 <script src="assets/js/hijri-converter.js" defer></script>
 <script src="assets/js/countdown.js" defer></script>
 <script src="assets/js/wheel-game.js" defer></script>
-<script src="assets/js/audio-player.js" defer></script>
+<script src="assets/js/tracker.js" defer></script>
 <script src="assets/js/app.js" defer></script>
 </body>
 </html>
