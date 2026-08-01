@@ -19,7 +19,7 @@
     // didesain buat broadcast publik, followers tinggal ikutin isi kontennya.
     // Format link asli WhatsApp Channel: https://whatsapp.com/channel/<ID_CHANNEL>
     // GANTI placeholder di bawah ini pake link Channel MR48H yang beneran.
-    WA_CHANNEL_URL: "https://whatsapp.com/channel/REPLACE_DENGAN_ID_CHANNEL_ASLI",
+    WA_CHANNEL_URL: "https://whatsapp.com/channel/0029VbCnyQTDDmFb64yqT93v",
 
     // URL Website MR48H yang udah live. Selama masih dev, biarin "#beranda"
     // (link footer "Website MR48H" otomatis balik ke atas halaman ini).
