@@ -2,7 +2,8 @@
    MR48H — storage.js
    Secure Storage Helper: CRUD localStorage yang terintegrasi
    sama security.js (base64 + checksum anti-tampering), plus
-   helper domain-specific: streak amalan, riwayat roda, preferensi audio.
+   helper domain-specific: streak amalan, riwayat roda, dan
+   Ramadhan Tracker (streak puasa, tilawah, mutaba'ah yaumiyah).
    ========================================================== */
 
 (function () {
@@ -75,12 +76,12 @@
   }
 
   /* ---------------------------------------------------------
-     Streak amalan
+     Streak generic (dipake buat streak amalan roda & streak puasa)
      --------------------------------------------------------- */
 
-  function getStreak() {
+  function getStreakByKey(storageKey) {
     const fallback = { count: 0, lastCompletedDateKey: null, totalCompleted: 0 };
-    const data = secureGet(config.STORAGE_KEYS.streak, fallback);
+    const data = secureGet(storageKey, fallback);
     if (!security.isPlainObject(data)) return fallback;
     return {
       count: Number.isFinite(data.count) ? data.count : 0,
@@ -89,12 +90,12 @@
     };
   }
 
-  function hasCompletedToday() {
-    return getStreak().lastCompletedDateKey === todayKey();
+  function hasCompletedTodayByKey(storageKey) {
+    return getStreakByKey(storageKey).lastCompletedDateKey === todayKey();
   }
 
-  function markAmalanCompletedToday() {
-    const streak = getStreak();
+  function markStreakTodayByKey(storageKey) {
+    const streak = getStreakByKey(storageKey);
     const key = todayKey();
 
     if (streak.lastCompletedDateKey === key) {
@@ -110,8 +111,40 @@
       totalCompleted: streak.totalCompleted + 1
     };
 
-    secureSet(config.STORAGE_KEYS.streak, updated);
+    secureSet(storageKey, updated);
     return updated;
+  }
+
+  /* ---------------------------------------------------------
+     Streak amalan (Roda Amalan Ihsan) — wrapper dari generic di atas
+     --------------------------------------------------------- */
+
+  function getStreak() {
+    return getStreakByKey(config.STORAGE_KEYS.streak);
+  }
+
+  function hasCompletedToday() {
+    return hasCompletedTodayByKey(config.STORAGE_KEYS.streak);
+  }
+
+  function markAmalanCompletedToday() {
+    return markStreakTodayByKey(config.STORAGE_KEYS.streak);
+  }
+
+  /* ---------------------------------------------------------
+     Streak Puasa (Ramadhan Tracker) — wrapper dari generic di atas
+     --------------------------------------------------------- */
+
+  function getFastingStreak() {
+    return getStreakByKey(config.STORAGE_KEYS.fastingStreak);
+  }
+
+  function hasFastedToday() {
+    return hasCompletedTodayByKey(config.STORAGE_KEYS.fastingStreak);
+  }
+
+  function markFastedToday() {
+    return markStreakTodayByKey(config.STORAGE_KEYS.fastingStreak);
   }
 
   /* ---------------------------------------------------------
@@ -132,16 +165,55 @@
   }
 
   /* ---------------------------------------------------------
-     Preferensi audio ambient
+     Tilawah Tracker (progres halaman Al-Qur'an)
      --------------------------------------------------------- */
 
-  function getAudioPref() {
-    const pref = secureGet(config.STORAGE_KEYS.audioPref, { enabled: false });
-    return !!(pref && pref.enabled);
+  function getTilawah() {
+    const data = secureGet(config.STORAGE_KEYS.tilawah, { pagesRead: 0 });
+    const pagesRead = security.sanitizeInt(data && data.pagesRead, 0, config.TILAWAH_TOTAL_PAGES, 0);
+    return { pagesRead: pagesRead };
   }
 
-  function setAudioPref(enabled) {
-    secureSet(config.STORAGE_KEYS.audioPref, { enabled: !!enabled });
+  function setTilawahPages(pages) {
+    const clamped = security.sanitizeInt(pages, 0, config.TILAWAH_TOTAL_PAGES, 0);
+    secureSet(config.STORAGE_KEYS.tilawah, { pagesRead: clamped });
+    return { pagesRead: clamped };
+  }
+
+  /* ---------------------------------------------------------
+     Mutaba'ah Yaumiyah (checklist harian, auto-reset tiap hari baru)
+     --------------------------------------------------------- */
+
+  function buildEmptyMutabaahItems() {
+    const items = {};
+    config.MUTABAAH_ITEMS.forEach(function (def) { items[def.key] = false; });
+    return items;
+  }
+
+  function getMutabaahToday() {
+    const key = todayKey();
+    const data = secureGet(config.STORAGE_KEYS.mutabaah, null);
+
+    if (!security.isPlainObject(data) || data.dateKey !== key || !security.isPlainObject(data.items)) {
+      return { dateKey: key, items: buildEmptyMutabaahItems() };
+    }
+
+    const validKeys = config.MUTABAAH_ITEMS.map(function (def) { return def.key; });
+    const cleanItems = buildEmptyMutabaahItems();
+    validKeys.forEach(function (k) {
+      cleanItems[k] = !!data.items[k];
+    });
+    return { dateKey: key, items: cleanItems };
+  }
+
+  function setMutabaahItem(itemKey, checked) {
+    const validKeys = config.MUTABAAH_ITEMS.map(function (def) { return def.key; });
+    if (validKeys.indexOf(itemKey) === -1) return getMutabaahToday();
+
+    const current = getMutabaahToday();
+    current.items[itemKey] = !!checked;
+    secureSet(config.STORAGE_KEYS.mutabaah, current);
+    return current;
   }
 
   NS.storage = {
@@ -152,9 +224,14 @@
     getStreak: getStreak,
     hasCompletedToday: hasCompletedToday,
     markAmalanCompletedToday: markAmalanCompletedToday,
+    getFastingStreak: getFastingStreak,
+    hasFastedToday: hasFastedToday,
+    markFastedToday: markFastedToday,
     getWheelHistory: getWheelHistory,
     addWheelHistoryEntry: addWheelHistoryEntry,
-    getAudioPref: getAudioPref,
-    setAudioPref: setAudioPref
+    getTilawah: getTilawah,
+    setTilawahPages: setTilawahPages,
+    getMutabaahToday: getMutabaahToday,
+    setMutabaahItem: setMutabaahItem
   };
 })();
