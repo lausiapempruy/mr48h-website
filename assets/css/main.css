@@ -97,7 +97,7 @@ body {
   overflow-x: hidden;
 }
 
-img, svg, canvas, audio { display: block; max-width: 100%; }
+img, svg, canvas { display: block; max-width: 100%; }
 
 a { color: inherit; text-decoration: none; }
 
@@ -234,8 +234,8 @@ button {
 }
 
 @media (pointer: coarse) {
-  .btn, .nav__cta, .footer__link, .ambience-toggle,
-  .float-audio, .timeline-item, .modal__close {
+  .btn, .nav__cta, .footer__link, .checklist__item label,
+  .tilawah-input input, .timeline-item, .modal__close {
     min-height: var(--touch-target);
   }
   button, a.btn { min-width: var(--touch-target); }
