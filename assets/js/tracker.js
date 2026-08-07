@@ -77,7 +77,7 @@
     if (fillEl) fillEl.style.setProperty("--fill-percent", percent + "%");
     if (percentEl) percentEl.textContent = percent + "%";
     if (juzHintEl) {
-      juzHintEl.textContent = data.pagesRead + " dari " + total + " halaman — setara ± Juz " + juzEstimate + " dari 30";
+      juzHintEl.textContent = data.pagesRead + " dari " + total + " halaman, setara ± Juz " + juzEstimate + " dari 30";
     }
     if (inputEl && document.activeElement !== inputEl) {
       inputEl.value = String(data.pagesRead);
@@ -157,7 +157,7 @@
     const mutabaahText = getMutabaahSummaryText();
 
     const text =
-      "Ringkasan Progress Ramadhan Tracker — MR48H 🌙\n\n" +
+      "Ringkasan Progress Ramadhan Tracker · MR48H 🌙\n\n" +
       "🔥 Streak Puasa: " + fasting.count + " hari\n" +
       "📖 Tilawah: " + tilawah.pagesRead + "/" + config.TILAWAH_TOTAL_PAGES + " halaman (" + percent + "%)\n" +
       "✅ Mutaba'ah hari ini: " + mutabaahText + "\n\n" +
