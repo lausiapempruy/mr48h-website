@@ -166,11 +166,11 @@
     });
 
     if (remaining <= 0) {
-      valueEl.textContent = "Ramadhan 1448H udah tiba — Marhaban ya Ramadhan! 🌙";
+      valueEl.textContent = "Ramadhan 1448H udah tiba, Marhaban ya Ramadhan! 🌙";
     } else if (!current) {
-      valueEl.textContent = "Belum masuk fase resmi — tapi gak ada salahnya mulai niat dari sekarang.";
+      valueEl.textContent = "Belum masuk fase resmi, tapi gak ada salahnya mulai niat dari sekarang.";
     } else {
-      valueEl.textContent = current.tag + " — " + current.desc;
+      valueEl.textContent = current.tag + ": " + current.desc;
     }
   }
 
