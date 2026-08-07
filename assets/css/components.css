@@ -62,14 +62,6 @@
   position: relative;
 }
 
-.hero__eyebrow {
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--cyan);
-  margin: 0 0 22px;
-}
-
 .hero__title {
   font-size: clamp(2.4rem, 7vw, 4.2rem);
   font-weight: 800;
@@ -899,4 +891,6 @@
 @media (max-width: 420px) {
   .countdown__box { min-width: 62px; padding: 10px 10px; }
   .countdown__sep { padding-bottom: 14px; }
+  .nav__inner { flex-wrap: wrap; row-gap: 8px; }
+  .nav__cta { font-size: 0.76rem; padding: 8px 12px; }
 }
